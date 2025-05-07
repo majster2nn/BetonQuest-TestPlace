@@ -55,6 +55,7 @@ nav:
           - 'Handling YAML Errors': Tutorials/Tools/YAML-Errors.md
       - 'Syntax':
           - 'Quest Packages': Tutorials/Syntax/Quest-Packages.md
+          - 'Templates' : Tutorials/Syntax/Templates.md
   - 'Documentation':
       - 'Overview': Documentation/Overview.md
 
