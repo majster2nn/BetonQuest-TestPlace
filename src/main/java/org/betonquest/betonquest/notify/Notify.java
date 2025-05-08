@@ -3,7 +3,6 @@ package org.betonquest.betonquest.notify;
 import org.betonquest.betonquest.BetonQuest;
 import org.betonquest.betonquest.api.config.ConfigAccessor;
 import org.betonquest.betonquest.api.config.quest.QuestPackage;
-import org.betonquest.betonquest.api.logger.BetonQuestLogger;
 import org.betonquest.betonquest.api.quest.QuestException;
 import org.bukkit.configuration.ConfigurationSection;
 import org.jetbrains.annotations.Nullable;
@@ -18,15 +17,20 @@ import java.util.Map;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-@SuppressWarnings("PMD.CommentRequired")
+/**
+ * Handles and stores notification settings.
+ */
 public final class Notify {
-    /**
-     * Custom {@link BetonQuestLogger} instance for this class.
-     */
-    private static final BetonQuestLogger LOG = BetonQuest.getInstance().getLoggerFactory().create(Notify.class);
 
+    /**
+     * Loaded custom settings for different notification categories.
+     */
     private static final Map<String, Map<String, String>> CATEGORY_SETTINGS = new HashMap<>();
 
+    /**
+     * Default custom notification io to use as fallback.
+     * If not set the "chat" io is used.
+     */
     @Nullable
     private static String defaultNotifyIO;
 
@@ -44,14 +48,30 @@ public final class Notify {
         defaultNotifyIO = config.getString("default_notify_IO");
     }
 
-    public static NotifyIO get(@Nullable final QuestPackage pack, @Nullable final String category) {
+    /**
+     * Gets the configured notify IO.
+     *
+     * @param pack     the pack to get from
+     * @param category the custom category
+     * @return the parsed NNotify IO
+     * @throws QuestException when the notify IO could not be created
+     */
+    public static NotifyIO get(@Nullable final QuestPackage pack, @Nullable final String category) throws QuestException {
         return get(pack, category, null);
     }
 
-    public static NotifyIO get(@Nullable final QuestPackage pack, @Nullable final String category, @Nullable final Map<String, String> data) {
-        final SortedSet<String> categories = getCategories(category);
-
-        final Map<String, String> categoryData = getCategorySettings(categories);
+    /**
+     * Gets the configured notify IO.
+     *
+     * @param pack     the pack to get from
+     * @param category the custom category
+     * @param data     the custom data to use for notification
+     * @return the parsed Notify IO
+     * @throws QuestException when the Notify IO could not be created with the data
+     */
+    public static NotifyIO get(@Nullable final QuestPackage pack, @Nullable final String category,
+                               @Nullable final Map<String, String> data) throws QuestException {
+        final Map<String, String> categoryData = getCategorySettings(getCategories(category));
         if (data != null) {
             for (final Map.Entry<String, String> entry : data.entrySet()) {
                 categoryData.put(entry.getKey().toLowerCase(Locale.ROOT), entry.getValue());
@@ -64,18 +84,7 @@ public final class Notify {
         }
         ios.add("chat");
 
-        try {
-            return getNotifyIO(pack, ios, categoryData);
-        } catch (final QuestException exception) {
-            LOG.warn(exception.getMessage(), exception);
-        }
-
-        try {
-            return new SuppressNotifyIO(pack, categoryData);
-        } catch (final QuestException e) {
-            LOG.reportException(e);
-            throw new UnsupportedOperationException(e);
-        }
+        return BetonQuest.getInstance().getFeatureRegistries().notifyIO().getFactory(ios).create(pack, categoryData);
     }
 
     private static SortedSet<String> getCategories(@Nullable final String category) {
@@ -105,16 +114,6 @@ public final class Notify {
             }
         }
         return ios;
-    }
-
-    private static NotifyIO getNotifyIO(@Nullable final QuestPackage pack, final List<String> ios, final Map<String, String> categoryData) throws QuestException {
-        for (final String name : ios) {
-            final NotifyIOFactory factory = BetonQuest.getInstance().getFeatureRegistries().notifyIO().getFactory(name);
-            if (factory != null) {
-                return factory.create(pack, categoryData);
-            }
-        }
-        throw new QuestException("No Notify IO could be found, searched for '" + ios + "'!");
     }
 
     /**
