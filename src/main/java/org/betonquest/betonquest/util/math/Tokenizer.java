@@ -20,11 +20,9 @@ import java.util.regex.Pattern;
 /**
  * Helps the {@link MathVariable} with parsing mathematical expressions.
  *
- * @deprecated This should be replaced in BQ 2.0 with a real expression parsing lib like
- * <a href="https://github.com/fasseg/exp4j">fasseg/exp4j</a>
+ * @deprecated This should be replaced with a real expression parsing lib
  */
 @Deprecated
-@SuppressWarnings("PMD.GodClass")
 public class Tokenizer {
 
     /**
@@ -85,7 +83,7 @@ public class Tokenizer {
      * @return parsed token
      * @throws QuestException if the expression is invalid and therefore couldn't be parsed
      */
-    @SuppressWarnings({"PMD.AssignmentInOperand", "PMD.CyclomaticComplexity", "PMD.NPathComplexity", "PMD.AvoidLiteralsInIfCondition",
+    @SuppressWarnings({"PMD.AssignmentInOperand", "PMD.CyclomaticComplexity", "PMD.AvoidLiteralsInIfCondition",
             "PMD.NcssCount", "PMD.CognitiveComplexity"})
     private Token tokenize(@Nullable final Token val1, @Nullable final Operator operator, final String val2) throws QuestException {
         if (val2.isEmpty()) {

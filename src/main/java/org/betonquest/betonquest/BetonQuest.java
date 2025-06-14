@@ -46,6 +46,7 @@ import org.betonquest.betonquest.database.Saver;
 import org.betonquest.betonquest.feature.CoreFeatureFactories;
 import org.betonquest.betonquest.item.QuestItemHandler;
 import org.betonquest.betonquest.kernel.processor.CoreQuestRegistry;
+import org.betonquest.betonquest.kernel.processor.QuestProcessor;
 import org.betonquest.betonquest.kernel.processor.QuestRegistry;
 import org.betonquest.betonquest.kernel.processor.quest.VariableProcessor;
 import org.betonquest.betonquest.kernel.registry.feature.FeatureRegistries;
@@ -360,7 +361,7 @@ public class BetonQuest extends JavaPlugin implements LanguageProvider {
 
         featureRegistries = FeatureRegistries.create(loggerFactory);
 
-        final String defaultParser = config.getString("messageParser", "legacyminimessage");
+        final String defaultParser = config.getString("message_parser", "legacyminimessage");
         messageParser = new DecidingMessageParser(featureRegistries.messageParser(), new TagMessageParserDecider(defaultParser));
         try {
             pluginMessage = new PluginMessage(this, coreQuestRegistry.variables(), playerDataStorage,
@@ -380,6 +381,7 @@ public class BetonQuest extends JavaPlugin implements LanguageProvider {
                 coreQuestRegistry, featureRegistries, pluginMessage, messageCreator, profileProvider);
         featureAPI = new FeatureAPI(questRegistry);
 
+        setupUpdater();
         registerListener(coreQuestRegistry);
 
         new CoreQuestTypes(loggerFactory, getServer(), getServer().getScheduler(), this,
@@ -418,8 +420,6 @@ public class BetonQuest extends JavaPlugin implements LanguageProvider {
 
         new BStatsMetrics(this, new Metrics(this, BSTATS_METRICS_ID), questRegistry.metricsSupplier());
 
-        setupUpdater();
-
         rpgMenu = new RPGMenu(loggerFactory.create(RPGMenu.class), loggerFactory, config, coreQuestRegistry.variables(),
                 pluginMessage, messageCreator, questTypeAPI, featureAPI, profileProvider);
 
@@ -456,12 +456,12 @@ public class BetonQuest extends JavaPlugin implements LanguageProvider {
     private void registerListener(final CoreQuestRegistry coreQuestRegistry) {
         final PluginManager pluginManager = Bukkit.getPluginManager();
         List.of(
-                new CombatTagger(profileProvider, config.getInt("combat_delay")),
+                new CombatTagger(profileProvider, config.getInt("conversation.combat_delay")),
                 new MobKillListener(profileProvider),
                 new CustomDropListener(loggerFactory.create(CustomDropListener.class), this, featureAPI),
                 new QuestItemHandler(config, playerDataStorage, pluginMessage, profileProvider),
                 new JoinQuitListener(loggerFactory, config, coreQuestRegistry.objectives(), playerDataStorage,
-                        pluginMessage, profileProvider)
+                        pluginMessage, profileProvider, updater)
         ).forEach(listener -> pluginManager.registerEvents(listener, this));
     }
 
@@ -526,10 +526,11 @@ public class BetonQuest extends JavaPlugin implements LanguageProvider {
      * @see QuestRegistry#loadData(Collection)
      */
     public void loadData() {
+        new LoadDataEvent(LoadDataEvent.State.PRE_LOAD).callEvent();
         questRegistry.loadData(getPackages().values());
+        new LoadDataEvent(LoadDataEvent.State.POST_LOAD).callEvent();
         playerDataStorage.startObjectives();
-        rpgMenu.reloadData(getPackages().values());
-        Bukkit.getPluginManager().callEvent(new LoadDataEvent());
+        rpgMenu.syncCommands();
     }
 
     /**
@@ -575,7 +576,6 @@ public class BetonQuest extends JavaPlugin implements LanguageProvider {
         }
     }
 
-    @SuppressWarnings({"PMD.DoNotUseThreads", "PMD.CyclomaticComplexity", "PMD.NPathComplexity"})
     @Override
     public void onDisable() {
         if (questRegistry != null) {
@@ -609,6 +609,15 @@ public class BetonQuest extends JavaPlugin implements LanguageProvider {
         if (rpgMenu != null) {
             rpgMenu.onDisable();
         }
+    }
+
+    /**
+     * Adds a Processor to re-/load data on BetonQuest re-/load.
+     *
+     * @param processor the processor to register
+     */
+    public void addProcessor(final QuestProcessor<?, ?> processor) {
+        questRegistry.additional().add(processor);
     }
 
     /**

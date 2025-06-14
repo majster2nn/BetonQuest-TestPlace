@@ -10,6 +10,7 @@ import org.betonquest.betonquest.util.Utils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.HandlerList;
@@ -85,7 +86,7 @@ public abstract class ChatConvIO implements ConversationIO, Listener {
         }
         answerFormat = string.toString();
         Bukkit.getPluginManager().registerEvents(this, BetonQuest.getInstance());
-        maxNpcDistance = BetonQuest.getInstance().getPluginConfig().getDouble("max_conversation_distance");
+        maxNpcDistance = BetonQuest.getInstance().getPluginConfig().getDouble("conversation.stop.distance");
     }
 
     @EventHandler(ignoreCancelled = true)
@@ -125,9 +126,9 @@ public abstract class ChatConvIO implements ConversationIO, Listener {
         newLocation.setPitch(pitch);
         newLocation.setYaw(yaw);
         event.getPlayer().teleport(newLocation);
-        if (BetonQuest.getInstance().getPluginConfig().getBoolean("notify_pullback")) {
+        if (BetonQuest.getInstance().getPluginConfig().getBoolean("conversation.stop.notify")) {
             try {
-                conv.sendMessage(BetonQuest.getInstance().getPluginMessage().getMessage("pullback").asComponent(onlineProfile));
+                conv.sendMessage(BetonQuest.getInstance().getPluginMessage().getMessage(onlineProfile, "pullback"));
             } catch (final QuestException e) {
                 log.warn("Failed to get pullback message: " + e.getMessage(), e);
             }
@@ -164,7 +165,7 @@ public abstract class ChatConvIO implements ConversationIO, Listener {
     }
 
     @Override
-    public void addPlayerOption(final String option) {
+    public void addPlayerOption(final String option, final ConfigurationSection properties) {
         optionsCount++;
         options.put(optionsCount, option);
     }

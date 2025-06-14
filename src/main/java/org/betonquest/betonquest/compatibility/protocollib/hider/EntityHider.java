@@ -48,7 +48,6 @@ public class EntityHider implements Listener {
                 PacketType.Play.Server.ANIMATION,
                 PacketType.Play.Server.COLLECT,
                 PacketType.Play.Server.SPAWN_ENTITY,
-                PacketType.Play.Server.SPAWN_ENTITY_EXPERIENCE_ORB,
                 PacketType.Play.Server.ENTITY_VELOCITY,
                 PacketType.Play.Server.REL_ENTITY_MOVE,
                 PacketType.Play.Server.ENTITY_LOOK,
@@ -70,18 +69,27 @@ public class EntityHider implements Listener {
             entityPackets.add(PacketType.Play.Server.SPAWN_ENTITY_PAINTING);
         }
         // TODO version switch:
-        // Remove this code when only 1.20.2+ is supported
+        //  Remove this code when only 1.20.2+ is supported
         if (!PaperLib.isVersion(20, 2)) {
             entityPackets.add(PacketType.Play.Server.NAMED_ENTITY_SPAWN);
+        }
+        // TODO version switch:
+        //  Remove this code when only 1.21.4+ is supported
+        if (!PaperLib.isVersion(21, 4)) {
+            entityPackets.add(PacketType.Play.Server.SPAWN_ENTITY_EXPERIENCE_ORB);
         }
 
         ENTITY_PACKETS = entityPackets.toArray(PacketType[]::new);
     }
 
-    // Current policy
+    /**
+     * Current policy.
+     */
     protected final Policy policy;
 
-    // Listeners
+    /**
+     * Bukkit Listener.
+     */
     private final Listener bukkitListener;
 
     private final PacketAdapter protocolListener;
@@ -119,7 +127,7 @@ public class EntityHider implements Listener {
      * @param visible  - TRUE if the entity should be made visible, FALSE if not.
      * @return TRUE if the entity was visible before this method call, FALSE otherwise.
      */
-    @SuppressWarnings({"PMD.LinguisticNaming", "PMD.TooFewBranchesForSwitch"})
+    @SuppressWarnings("PMD.LinguisticNaming")
     protected boolean setVisibility(final OnlineProfile observer, final int entityID, final boolean visible) {
         return switch (policy) {
             case BLACKLIST ->
@@ -191,7 +199,7 @@ public class EntityHider implements Listener {
     /**
      * Invoked when a player logs out.
      *
-     * @param player - the player that jused logged out.
+     * @param player - the player that used logged out.
      */
     protected void removePlayer(final Player player) {
         // Cleanup
@@ -320,7 +328,9 @@ public class EntityHider implements Listener {
         return isVisible(observer, entity.getEntityId());
     }
 
-    // For valdiating the input parameters
+    /**
+     * Validates the input parameters against null.
+     */
     private void validate(final OnlineProfile observer, final Entity entity) {
         Preconditions.checkNotNull(observer, "observer cannot be NULL.");
         Preconditions.checkNotNull(entity, "entity cannot be NULL.");

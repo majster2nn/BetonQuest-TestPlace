@@ -48,7 +48,6 @@ public class PlayerData implements TagData, PointData {
     /**
      * The database saver for player data.
      */
-    @SuppressWarnings("PMD.DoNotUseThreads")
     private final Saver saver;
 
     private final Profile profile;
@@ -171,7 +170,7 @@ public class PlayerData implements TagData, PointData {
         saver.add(new Record(UpdateType.ADD_PLAYER, profile.getPlayer().getUniqueId().toString(),
                 profileID, "default"));
         saver.add(new Record(UpdateType.ADD_PLAYER_PROFILE, profile.getPlayer().getUniqueId().toString(),
-                profileID, BetonQuest.getInstance().getPluginConfig().getString("profiles.initial_name", "default")));
+                profileID, BetonQuest.getInstance().getPluginConfig().getString("profile.initial_name", "default")));
     }
 
     private void addItemToBackpack(final ResultSet backpackResults) throws SQLException {
@@ -427,7 +426,6 @@ public class PlayerData implements TagData, PointData {
      * @param item   ItemStack to add to backpack
      * @param amount amount of the items
      */
-    @SuppressWarnings("PMD.CognitiveComplexity")
     public void addItem(final ItemStack item, final int amount) {
         int inputAmount = amount;
         for (final ItemStack itemStack : backpack) {

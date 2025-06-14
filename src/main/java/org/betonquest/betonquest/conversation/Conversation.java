@@ -9,6 +9,7 @@ import org.betonquest.betonquest.BetonQuest;
 import org.betonquest.betonquest.api.bukkit.event.ConversationOptionEvent;
 import org.betonquest.betonquest.api.bukkit.event.PlayerConversationEndEvent;
 import org.betonquest.betonquest.api.bukkit.event.PlayerConversationStartEvent;
+import org.betonquest.betonquest.api.common.component.VariableReplacement;
 import org.betonquest.betonquest.api.config.quest.QuestPackage;
 import org.betonquest.betonquest.api.logger.BetonQuestLogger;
 import org.betonquest.betonquest.api.profile.OnlineProfile;
@@ -27,7 +28,6 @@ import org.betonquest.betonquest.id.EventID;
 import org.betonquest.betonquest.quest.event.IngameNotificationSender;
 import org.betonquest.betonquest.quest.event.NotificationLevel;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -60,7 +60,7 @@ import static org.betonquest.betonquest.conversation.ConversationData.OptionType
  * Manages an active conversation between a player and a NPC.
  * Handles the conversation flow based on {@link ConversationData}.
  */
-@SuppressWarnings({"PMD.GodClass", "PMD.TooManyMethods", "PMD.CouplingBetweenObjects", "NullAway"})
+@SuppressWarnings({"PMD.TooManyMethods", "PMD.CouplingBetweenObjects", "NullAway"})
 public class Conversation implements Listener {
 
     /**
@@ -222,8 +222,8 @@ public class Conversation implements Listener {
         this.identifier = conversationID;
         this.pack = conversationID.getPackage();
         this.center = center;
-        this.blacklist = plugin.getPluginConfig().getStringList("cmd_blacklist");
-        this.messagesDelaying = Boolean.parseBoolean(plugin.getPluginConfig().getString("display_chat_after_conversation"));
+        this.blacklist = plugin.getPluginConfig().getStringList("conversation.cmd_blacklist");
+        this.messagesDelaying = plugin.getPluginConfig().getBoolean("conversation.interceptor.display_missed");
         this.blockedSender = new IngameNotificationSender(log, pluginMessage, pack, conversationID.getFullID(), NotificationLevel.ERROR, "command_blocked");
         this.startSender = new IngameNotificationSender(log, pluginMessage, pack, conversationID.getFullID(), NotificationLevel.INFO, "conversation_start");
         this.endSender = new IngameNotificationSender(log, pluginMessage, pack, conversationID.getFullID(), NotificationLevel.INFO, "conversation_end");
@@ -316,18 +316,11 @@ public class Conversation implements Listener {
      * selectOption()
      */
     private void printNPCText() {
-        // if there are no possible options, end conversation
         if (nextNPCOption == null) {
             new ConversationEnder().runTask(BetonQuest.getInstance());
             return;
         }
-
-        String text = data.getText(onlineProfile, nextNPCOption);
-        text = ChatColor.translateAlternateColorCodes('&', text);
-
-        // print option to the player
-        inOut.setNpcResponse(data.getPublicData().getQuester(log, onlineProfile), LegacyComponentSerializer.legacySection().deserialize(text));
-
+        inOut.setNpcResponse(data.getPublicData().getQuester(log, onlineProfile), data.getText(onlineProfile, nextNPCOption));
         new NPCEventRunner(nextNPCOption).runTask(BetonQuest.getInstance());
     }
 
@@ -337,12 +330,12 @@ public class Conversation implements Listener {
      * @param number the message player has sent on chat
      */
     public void passPlayerAnswer(final int number) {
-
         inOut.clear();
-
-        new PlayerEventRunner(availablePlayerOptions.get(number)).runTask(BetonQuest.getInstance());
-
-        // clear hashmap
+        final ResolvedOption playerOption = availablePlayerOptions.get(number);
+        if (playerOption == null) {
+            throw new IllegalStateException("No selectable player option found in conversation " + identifier.getFullID());
+        }
+        new PlayerEventRunner(playerOption).runTask(BetonQuest.getInstance());
         availablePlayerOptions.clear();
     }
 
@@ -382,11 +375,12 @@ public class Conversation implements Listener {
             optionsCount++;
             availablePlayerOptions.put(optionsCount, option);
 
-            // replace variables with their values
-            String text = data.getText(onlineProfile, option);
-            text = ChatColor.translateAlternateColorCodes('&', text);
-
-            inOut.addPlayerOption(text);
+            final Component text = data.getText(onlineProfile, option);
+            try {
+                inOut.addPlayerOption(LegacyComponentSerializer.legacySection().serialize(text), data.getProperties(onlineProfile, option));
+            } catch (final QuestException e) {
+                log.warn(pack, "Error while adding option '" + option.name() + "': " + e.getMessage(), e);
+            }
         }
         new BukkitRunnable() {
             @Override
@@ -432,7 +426,7 @@ public class Conversation implements Listener {
             } catch (final QuestException e) {
                 log.warn(pack, "Error while firing final events: " + e.getMessage(), e);
             }
-            endSender.sendNotification(onlineProfile, new PluginMessage.Replacement("npc", data.getPublicData().getQuester(log, onlineProfile)));
+            endSender.sendNotification(onlineProfile, new VariableReplacement("npc", data.getPublicData().getQuester(log, onlineProfile)));
 
             // End interceptor after a second
             if (interceptor != null) {
@@ -680,7 +674,7 @@ public class Conversation implements Listener {
     /**
      * Starts the conversation, should be called asynchronously.
      */
-    @SuppressWarnings({"PMD.NPathComplexity", "PMD.CyclomaticComplexity", "PMD.CognitiveComplexity"})
+    @SuppressWarnings("PMD.CyclomaticComplexity")
     private class Starter extends BukkitRunnable {
 
         /**
@@ -705,7 +699,6 @@ public class Conversation implements Listener {
             super();
         }
 
-        @SuppressWarnings("PMD.NcssCount")
         @Override
         public void run() {
             if (state.isStarted()) {
@@ -773,7 +766,7 @@ public class Conversation implements Listener {
                     // first select the option before sending message, so it
                     // knows which is used
                     selectOption(resolvedOptions, false);
-                    startSender.sendNotification(onlineProfile, new PluginMessage.Replacement("npc", data.getPublicData().getQuester(log, onlineProfile)));
+                    startSender.sendNotification(onlineProfile, new VariableReplacement("npc", data.getPublicData().getQuester(log, onlineProfile)));
                 } else {
                     final List<ResolvedOption> resolvedOptions = resolveOptions(startingOptions);
                     selectOption(resolvedOptions, true);

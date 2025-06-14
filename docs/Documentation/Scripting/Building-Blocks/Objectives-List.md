@@ -218,11 +218,11 @@ objectives:
 
 <h5> Variable Properties </h5> 
 
-| Name         | Example Output                        | Explanation                                                                                                                                  |
-|--------------|---------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------|
-| _left_       | 23 days 5 hours 45 minutes 17 seconds | Shows the time left until the objective is completed.                                                                                        |
-| _date_       | 17.04.2022 16:14                      | Shows the date the objective is completed at using the config's `date_format` [setting](../../Configuration/Configuration.md#misc-settings). |
-| _rawSeconds_ | 5482                                  | Shows the amount of seconds until objective completion.                                                                                      |
+| Name         | Example Output                        | Explanation                                                                                                                                                    |
+|--------------|---------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| _left_       | 23 days 5 hours 45 minutes 17 seconds | Shows the time left until the objective is completed.                                                                                                          |
+| _date_       | 17.04.2022 16:14                      | Shows the date the objective is completed at using the config's [`date_format` setting](../../Configuration/Plugin-Config.md#date_format-the-format-of-dates). |
+| _rawSeconds_ | 5482                                  | Shows the amount of seconds until objective completion.                                                                                                        |
 
 
 ## Death: `die`
@@ -281,13 +281,13 @@ The player must click on entities to complete this objective.
 | _Click Type_    | `right`, `left` or `any`                                                                      | :octicons-x-circle-16: | What type of click should be handled                                                                                                          |
 | _Entity Type_   | [EntityType type](https://hub.spigotmc.org/javadocs/spigot/org/bukkit/entity/EntityType.html) | :octicons-x-circle-16: | The entity which must be clicked                                                                                                              |
 | _amount_        | number                                                                                        | :octicons-x-circle-16: | The amount of different entities which must be interacted with.                                                                               |
-| _name_          | name:text                                                                                     | Disabled               | Only count named mobs. Spaces must be replaced with `_`.                                                                                      |
-| _realname_      | realname:text                                                                                 | Disabled               | To check for the real name (e.g. if you renamed players to include their rank). Spaces must be replaced with `_`.                             |
+| _name_          | name:text                                                                                     | Disabled               | Only count named mobs.                                                                                                                        |
+| _realname_      | realname:text                                                                                 | Disabled               | To check for the real name (e.g. if you renamed players to include their rank).                                                               |
 | _marked_        | marked:text                                                                                   | Disabled               | If the clicked entity needs to be marked by the [spawn event](./Events-List.md#spawn-mob-spawn) (see its description for marking explanation) |
 | _hand_          | hand:(`hand`,`off_hand`, `any`)                                                               | `hand`                 | The hand the player must use to click the block, `any` can the objective cause to be completed multiple times                                 |
 | _Notifications_ | Keyword (_notify_)                                                                            | Disabled               | Displays messages to the player each time they progress the objective. Optionally with the notification interval after colon.                 |
 | _Cancel_        | Keyword (_cancel_)                                                                            | Disabled               | if the click shouldn't do what it usually does (i.e. left click won't hurt the entity).                                                       |
-| _hookLocation_  | hookLocation:[Location](../Data-Formats.md#unified-location-formating)                        | Everywhere             | The location at which the entity must be interacted.                                                                                          |
+| _Location_      | loc:[Location](../Data-Formats.md#unified-location-formating)                                 | Everywhere             | The location at which the entity must be interacted.                                                                                          |
 | _range_         | range:number                                                                                  | 1                      | The range around the `loc`. Requires defined `loc`.                                                                                           |
 
 ```YAML title="Example"
@@ -474,7 +474,7 @@ All entities work, make sure to use their [correct types](https://hub.spigotmc.o
 |-----------|-------------------------|------------------------|-------------------------------------------------------------------------------------------------------------------------|
 | _type_    | ENTITY_TYPE,ENTITY_TYPE | :octicons-x-circle-16: | A list of entities, e.g. `ZOMBIE,SKELETON`.                                                                             |
 | _amount_  | Positive Number         | :octicons-x-circle-16: | Amount of mobs to kill in total.                                                                                        |
-| _name_    | name:text               | Disabled               | Only count named mobs. Spaces must be replaced with `_`.                                                                |
+| _name_    | name:text               | Disabled               | Only count named mobs.                                                                                                  |
 | _marked_  | marked:keyword          | Disabled               | Only count marked mobs. See the [spawn event](Events-List.md#spawn-mob-spawn) for more information. Supports variables. |
 | _notify_  | notify:interval         | Disabled               | Display a message to the player each time they kill a mob. Optionally with the notification interval after colon.       |
 

@@ -105,7 +105,7 @@ public class Journal {
             if (title == null || lore == null) {
                 return false;
             }
-            final Component journalTitle = BetonQuest.getInstance().getPluginMessage().getMessage("journal_title").asComponent(onlineProfile);
+            final Component journalTitle = BetonQuest.getInstance().getPluginMessage().getMessage(onlineProfile, "journal_title");
             return title.contains(journalTitle, Utils.COMPONENT_BI_PREDICATE) && Objects.equals(item.getItemMeta().getLore(), getJournalLore(onlineProfile));
         } catch (final QuestException e) {
             LOG.warn("Failed to check if the journal's title is correct: " + e.getMessage(), e);
@@ -115,7 +115,7 @@ public class Journal {
 
     private static List<String> getJournalLore(final Profile profile) throws QuestException {
         return Arrays.asList(Utils.format(LegacyComponentSerializer.legacySection()
-                        .serialize(BetonQuest.getInstance().getPluginMessage().getMessage("journal_lore").asComponent(profile)))
+                        .serialize(BetonQuest.getInstance().getPluginMessage().getMessage(profile, "journal_lore")))
                 .split("\n"));
     }
 
@@ -190,7 +190,7 @@ public class Journal {
      */
     public List<String> getText() {
         final List<String> list;
-        if (Boolean.parseBoolean(config.getString("journal.reversed_order"))) {
+        if (Boolean.parseBoolean(config.getString("journal.format.reversed_order"))) {
             list = Lists.reverse(texts);
         } else {
             list = new ArrayList<>(texts);
@@ -208,7 +208,7 @@ public class Journal {
     public void generateTexts() {
         texts.clear();
         mainPage = generateMainPage();
-        final boolean displayDatePrefix = "false".equalsIgnoreCase(config.getString("journal.hide_date"));
+        final boolean displayDatePrefix = "false".equalsIgnoreCase(config.getString("journal.format.hide_date"));
         final FeatureAPI featureAPI = BetonQuest.getInstance().getFeatureAPI();
         for (final Pointer pointer : pointers) {
             final String datePrefix = displayDatePrefix ? pointer.generateDatePrefix(config) + "\n" : "";
@@ -230,7 +230,7 @@ public class Journal {
                 text = "error";
             }
 
-            texts.add(datePrefix + "§" + config.getString("journal_colors.text") + Utils.format(text));
+            texts.add(datePrefix + "§" + config.getString("journal.format.color.text") + Utils.format(text));
         }
     }
 
@@ -332,10 +332,9 @@ public class Journal {
         }
     }
 
-    @SuppressWarnings("PMD.PrematureDeclaration")
     private int getJournalSlot() {
-        final int slot = config.getInt("default_journal_slot");
-        final boolean forceJournalSlot = config.getBoolean("journal.lock_default_journal_slot");
+        final int slot = config.getInt("journal.default_slot");
+        final boolean forceJournalSlot = config.getBoolean("journal.lock_default_slot");
         final int oldSlot = removeFromInv();
         if (forceJournalSlot) {
             return slot;
@@ -353,23 +352,23 @@ public class Journal {
     public ItemStack getAsItem() throws QuestException {
         final ItemStack item = new ItemStack(Material.WRITTEN_BOOK);
         final BookMeta meta = (BookMeta) item.getItemMeta();
-        meta.title(pluginMessage.getMessage("journal_title").asComponent(profile));
+        meta.title(pluginMessage.getMessage(profile, "journal_title"));
         meta.setAuthor(profile.getPlayer().getName());
         meta.setCustomModelData(config.getInt("journal.custom_model_data"));
         meta.setLore(getJournalLore(profile));
 
         // add main page and generate pages from texts
         final List<String> finalList = new ArrayList<>();
-        final String color = config.getString("journal_colors.line");
-        if (config.getBoolean("journal.one_entry_per_page")) {
+        final String color = config.getString("journal.format.color.line");
+        if (config.getBoolean("journal.format.one_entry_per_page")) {
             if (mainPage != null && !mainPage.isEmpty()) {
                 finalList.addAll(Utils.pagesFromString(mainPage));
             }
             finalList.addAll(getText());
         } else {
             final String line;
-            if (config.getBoolean("journal.show_separator")) {
-                final String separator = config.getString("journal.separator");
+            if (config.getBoolean("journal.format.show_separator")) {
+                final String separator = config.getString("journal.format.separator");
                 line = "\n§" + color + separator + "\n";
             } else {
                 line = "\n";

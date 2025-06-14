@@ -42,7 +42,11 @@ This guide explains how to migrate from the latest BetonQuest 2.X version to Bet
 - [3.0.0-DEV-267 - MoonPhases rename](#300-dev-267-moonphase-rename) :sun:
 - [3.0.0-DEV-274 - String List remove](#300-dev-274-string-list-remove) :sun:
 - [3.0.0-DEV-277 - Rename Constants](#300-dev-277-rename-constants) :white_sun_cloud:
-- [3.0.0-DEV-284 - Rename Constants](#300-dev-284-change-head-owner) :sun:
+- [3.0.0-DEV-284 - Change Head Owner](#300-dev-284-change-head-owner) :sun:
+- [3.0.0-DEV-299 - NPC events rename](#300-dev-299-npc-events-rename) :sun:
+- [3.0.0-DEV-306 - MMOItems Item Type](#300-dev-306-mmoitems-item-type) :thunder_cloud_rain:
+- [3.0.0-DEV-313 - Folder Time Unit](#300-dev-313-folder-time-unit) :white_sun_cloud:
+- [3.0.0-DEV-316 - Chest Conversation IO](#300-dev-316-chest-conversation-io) :thunder_cloud_rain:
 
 ### 3.0.0-DEV-58 - Delete messages.yml :thunder_cloud_rain:
 
@@ -54,8 +58,8 @@ you can delete the file safely otherwise you should move the messages to the new
 
 ### 3.0.0-DEV-65 - Delete menuConfig.yml :thunder_cloud_rain:
 
-The `menuConfig.yml` file has been removed.
-If you had the option `default_close` configured, you can now find this option in the `config.yml` file.
+The "_menuConfig.yml_" file has been removed.
+If you had the option `default_close` configured, you can now find this option in the "_config.yml_" file.
 All translations in the config where also moved to the `lang` folder,
 so also here you need to move your custom translations.
 
@@ -138,7 +142,8 @@ To support more Npc plugins than just Citizens the system got a rework.
 Npcs are now addressed with IDs and defined in the `npcs` section.
 Starting conversations with Npc interaction is moved inside the `npc_conversations` section.
 
-Also, the `teleportnpc` event got renamed to `npcteleport`.
+Also, the `teleportnpc` event got renamed to `npcteleport`. That change is automated, when updating to version
+3.0.0-DEV-299 or newer.
 
 In addition, the `npc` variable to get the quester name of the current conversation got changed to `quester`.
 That change is automated.
@@ -206,7 +211,9 @@ Citizens integration.
 ### 3.0.0-DEV-135 - Citizens Adaption to NpcID :thunder_cloud_rain:
 
 To streamline usage of Npcs the Citizens specific events and objective now also use the NpcID introduced in 3.0.0-DEV-114.
-Also, the `movenpc` and `stopnpc` events are renamed into `npcmove` and `npcstop`.
+
+Also, the `movenpc` and `stopnpc` events are renamed into `npcmove` and `npcstop`. These renames are automated, when 
+updating to version 3.0.0-DEV-299 or newer.
 
 As in the migration above stated you can either use a descriptive name as the id or use the numeric Citizens id of the Npc.
 
@@ -525,3 +532,105 @@ and if you only want sounds and no message, you use `sound` instead of `suppress
     ```
     
     </div>
+
+### 3.0.0-DEV-299 - NPC events rename  :sun:
+??? info "Automated Migration"
+    *The migration is automated. You shouldn't have to do anything.*
+    
+    -------------
+    
+    Some NPC events were renamed in the versions [3.0.0-DEV-114 - Npc Rework](#300-dev-114-npc-rework) and [3.0.
+    0-DEV-135 - Citizens Adaption to NpcID](#300-dev-135-citizens-adaption-to-npcid). These renames are automated now.
+
+### 3.0.0-DEV-306 - MMOItems Item Type :thunder_cloud_rain:
+
+MMOItems is now integrated into the item system.
+
+Instead of using mmo specific pickup objectives or item conditions and events it now uses the standard implementations.
+The following obsolete implementations were removed:
+
+- `mmoitem` condition
+- `mmohand` condition
+- `mmoitemgive` event
+- `mmoitemtake` event
+- `mmoitemcraft` objective
+
+<div class="grid" markdown>
+
+```YAML title="Old Syntax"
+conditions:
+  hand: mmohand ARMOR SKELETON_CROWN
+  inventory: mmoitem ARMOR SKELETON_CROWN
+events:
+  give: mmoitemgive ARMOR SKELETON_CROWN
+  take: mmoitemtake ARMOR SKELETON_CROWN
+objectives:
+  craft: mmoitemcraft ARMOR SKELETON_CROWN
+```
+
+```YAML title="New Syntax"
+items:
+  crown: mmoitem ARMOR SKELETON_CROWN
+conditions:
+  hand: hand crown
+  inventory: item crown
+events:
+  give: give crown
+  take: take crown
+objectives:
+  craft: craft crown
+```
+
+</div>
+
+The `mmoitemupgrade` and `mmoitemapplygem` objectives exist unchanged.
+
+### 3.0.0-DEV-313 - Folder Time Unit :white_sun_cloud:
+??? info "Automated Migration"
+    *The migration is automated. You shouldn't have to do anything.*
+    
+    -------------
+    
+    To allow variables for the time unit in the `folder` event, the time unit now needs a key `unit`.
+    
+    <div class="grid" markdown>
+    
+    ```YAML title="Old Syntax"
+    events:
+      setBlocks: folder block1,block2,block3 period:10 ticks
+    ```
+    
+    ```YAML title="New Syntax"
+    events:
+      setBlocks: folder block1,block2,block3 period:10 unit:ticks
+    ```
+    
+    </div>
+
+### 3.0.0-DEV-316 - Chest Conversation IO :thunder_cloud_rain:
+
+To make future changes possible and to improve the possibility to add new features,
+the display `item` is now defined in a new section called `properties`.
+
+<div class="grid" markdown>
+
+```YAML title="Old Syntax"
+conversations:
+  #...
+    player_options:
+      exampleOption:
+        text: "{diamond}This is an example option"
+```
+
+```YAML title="New Syntax"
+conversations:
+  #...
+    player_options:
+      exampleOption:
+        text: "This is an example option"
+        properties:
+          item: "diamond"
+items:
+  diamond: "DIAMOND"
+```
+</div>

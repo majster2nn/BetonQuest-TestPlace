@@ -329,7 +329,7 @@ This event simply gives the player specified amount of Heroes experience. The fi
 
 ## JobsReborn[](https://www.spigotmc.org/resources/4216/)
 
-Requires adding the following to _config.yml_:
+Requires adding the following to "_config.yml_":
 ```YAML
 hook:
   jobs: 'true'
@@ -499,6 +499,32 @@ This event adds experience points in a specified skill. The first argument is th
 
 ## MMOCore[](https://www.spigotmc.org/resources/70575/) & MMOItems[](https://www.spigotmc.org/resources/39267/) & MythicLib[](https://www.spigotmc.org/resources/90306/)
 
+### Items
+
+MMOItems usage is integrated to the [Items] system and thus used for events and conditions.
+
+```YAML linenums="1" title="Example"
+items:
+  crown: mmoitem ARMOR SKELETON_CROWN
+  gem: mmoitem GEMS SPEED_GEM
+conditions:
+  hasCrown: hand crown
+events:
+  giveGem: give gem:3
+```
+
+#### Craft item: `craft`
+When MMOItems is installed the [`craft`](./Objectives-List.md#crafting-craft) objective also processes MMOItems
+"recipe-amounts" crafting and MMOItems station crafting.
+The amount is based on how many items have actually been crafted, not how often a specific recipe has been used!
+Therefore, a recipe that makes four items at once will let the objective progress by four steps.
+
+```YAML linenums="1" title="Crafting Example"
+items:
+  potion: mmoitem HEALTH_POTION_RECIPE
+objectives:
+  craftPotion: craft potion 5 notify
+```
 
 ### Conditions
 
@@ -529,21 +555,6 @@ You can disable this behaviour by adding the `equal` argument.
 ```YAML linenums="1"
 mmoprofession mining 2 
 mmoprofession mining 2 equal
-```
-
-#### MMOItems item: `mmoitem`
-Checks if a player has the specified amount of MMOItems or more in his inventory. If no amount has been defined the default amount is one.
-```YAML linenums="1"
-mmoitem ARMOR SKELETON_CROWN
-mmoitem GEMS SPEED_GEM 3
-```
-
-#### MMOItems hand: `mmohand`
-Checks if a player holds the specified MMOItem in his hand. Checks the main hand if not specified otherwise using the `offhand` argument.
-If no amount has been defined the default amount is one.
-```YAML linenums="1"
-mmohand ARMOR SKELETON_CROWN
-mmohand GEMS SPEED_GEM 3 offhand
 ```
 
 #### MythicLib stat: `mmostat`
@@ -589,22 +600,6 @@ Use `main` to check for class level ups.
 mmoprofessionlevelup MINING 10
 ```
 
-#### Craft item: `mmoitemcraft`
-This objective requires the player to craft the item with the given type and id.
-It supports any MMOItem that was crafted using vanilla crafting methods, MMOItems "recipe-amounts" crafting and MMOItems station crafting.
-An amount can also be set if it shall differ from the default (which is one) by adding the `amount:` argument.
-The amount is based on how many items have actually been crafted, not how often a specific recipe has been used! Therefore,
-a recipe that makes four items at once will let the objective progress by four steps. You can use the `notify` keyword
-to display a message each time the player advances the objective, optionally with the notification interval after a
-colon.
-
-This objective has three properties: `amount`, `left` and `total`. `amount` is the amount of items already crafted,
-`left` is the amount of items still needed to craft and `total` is the amount of items initially required.
-
-```YAML linenums="1"
-mmoitemcraft SWORD STEEL_SWORD
-mmoitemcraft HEALTH_POTION_RECIPE amount:5
-```
 #### Upgrade Item: `mmoitemupgrade`
 This objective tracks if a player upgrades the given item with an upgrade consumable.  
 ```YAML linenums="1"
@@ -675,36 +670,6 @@ Gives the player attribute reallocation points. The amount can be a variable or 
 mmocoreattributereallocationpoints 1
 ```
 
-#### Give MMOItem: `mmoitemgive`
-Gives the player predefined item. Default amount is one and can be set manually to a higher amount or a variable.
-The item can be adjusted to the players level by adding the `scale` option. If you want all items to be stacked together 
-the `singleStack` option can be set. If the player doesn't have required space in the inventory, the items will be dropped on the ground.
-You can also specify the `notify` keyword to display a message to the player about what items have been received.
-```YAML linenums="1"
-mmoitemgive CONSUMABLE MANA_POTION
-```
-
-#### Take MMOItem: `mmoitemtake`
-
-Removes the specified item from the players inventory. Optional arguments are an amount and `notify` to send a notification
-to the player.
-
-Which inventory types are checked is defined by the `invOrder:`
-option. You can use `Backpack`, `Inventory` and `Armor` there. One after another will be checked if multiple types are defined.
-The backpack will not work before 2.0's item rework since the current item system does not safe custom NBT data.
-
-You can also specify `notify` keyword to display a simple message to the player about loosing items.
-
-Amount can be a variable.
-```YAML linenums="1"
-mmoitemtake SWORD STEEL_SWORD
-mmoitemtake SWORD STEEL_SWORD notify
-mmoitemtake CONSUMABLE HEALTH_POTION amount:5
-mmoitemtake CONSUMABLE BAKED_APPLES amount:2 invOrder:Backpack,Inventory
-mmoitemtake ARMOR KINGS_CHESTPLATE invOrder:Armor,Backpack
-```
-
-
 ## MythicMobs[](http://dev.bukkit.org/bukkit-plugins/mythicmobs/)
 !!! info ""
     **Required MythicMobs version: _5.3.5_ or above** 
@@ -715,7 +680,7 @@ mmoitemtake ARMOR KINGS_CHESTPLATE invOrder:Armor,Backpack
 #### MobKill: `mmobkill`
 
 You need to kill the specified amount of MythicMobs to complete this objective. The first argument must be
-the mob's internal name (the one defined in your MythicMobs configuration). Multiple mob names must be comma seperated.
+the mob's internal name (the one defined in your MythicMobs configuration). Multiple mob names must be comma separated.
 You can optionally add the `amount:` argument to specify how many of these mobs need to be killed. It's also possible
 to add the optional arguments `minLevel` and `maxLevel` to further customize what mobs need to be killed.
 You can also add an optional `neutralDeathRadiusAllPlayers` argument to complete the objective for each nearby player
@@ -756,7 +721,7 @@ Check whether the player is near a specific MythicMobs entity. The first argumen
 | Parameter  | Syntax                                               | Default Value          | Explanation                                                                                                                             |
 |------------|------------------------------------------------------|------------------------|-----------------------------------------------------------------------------------------------------------------------------------------|
 | _location_ | [ULF](../Data-Formats.md#unified-location-formating) | :octicons-x-circle-16: | The location to spawn the mob at.                                                                                                       |
-| _name_     | name:level                                           | :octicons-x-circle-16: | MythicMobs mob name. A level must be specifed after a colon.                                                                            |
+| _name_     | name:level                                           | :octicons-x-circle-16: | MythicMobs mob name. A level must be specified after a colon.                                                                           |
 | _amount_   | Positive Number                                      | :octicons-x-circle-16: | Amount of mobs to spawn.                                                                                                                |
 | _target_   | Keyword                                              | False                  | Will make the mob target the player.                                                                                                    |
 | _private_  | Keyword                                              | Disabled               | Will hide the mob from all other players until restart. This does not hide particles or block sound from the mob. Also see notes below. |
@@ -914,7 +879,7 @@ The first argument is class name, the second one is the required level.
 
 ## Skript[](http://dev.bukkit.org/bukkit-plugins/skript/)
 
-BetonQuest can also hook into Skript. Firstly, to avoid any confusion, I will refere to everything here by name of the plugin (Skript event is something else than BetonQuest event). Having Skript on your server will enable using BetonQuest events and conditions in scripts, and also trigger them by BetonQuest event.
+BetonQuest can also hook into Skript. Firstly, to avoid any confusion, I will reference to everything here by name of the plugin (Skript event is something else than BetonQuest event). Having Skript on your server will enable using BetonQuest events and conditions in scripts, and also trigger them by BetonQuest event.
 
 You can use cross-package paths using `-` between the packages. Example:
 `player meets condition "default-Forest-Jack.Completed"`
@@ -1191,6 +1156,3 @@ It is a lightweight packet based plugin.
 
 !!! info
     ZNPCsPlus integration supports all [BetonQuest NPC](../../Features/NPCs.md) features.
-
-
-

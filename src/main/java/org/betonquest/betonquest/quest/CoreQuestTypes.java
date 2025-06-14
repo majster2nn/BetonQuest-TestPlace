@@ -188,7 +188,7 @@ import java.time.InstantSource;
 /**
  * Registers the Conditions, Events, Objectives and Variables that come with BetonQuest.
  */
-@SuppressWarnings({"PMD.CouplingBetweenObjects", "PMD.NcssCount"})
+@SuppressWarnings("PMD.NcssCount")
 public class CoreQuestTypes {
     /**
      * Logger Factory to create new custom Logger from.
@@ -426,7 +426,7 @@ public class CoreQuestTypes {
         objectiveTypes.register("command", new CommandObjectiveFactory());
         objectiveTypes.register("consume", new ConsumeObjectiveFactory());
         objectiveTypes.register("craft", new CraftingObjectiveFactory());
-        objectiveTypes.register("delay", new DelayObjectiveFactory(loggerFactory));
+        objectiveTypes.register("delay", new DelayObjectiveFactory());
         objectiveTypes.register("die", new DieObjectiveFactory());
         objectiveTypes.register("enchant", new EnchantObjectiveFactory());
         objectiveTypes.register("experience", new ExperienceObjectiveFactory(loggerFactory, pluginMessage));
@@ -444,7 +444,7 @@ public class CoreQuestTypes {
         objectiveTypes.register("ride", new RideObjectiveFactory());
         objectiveTypes.register("shear", new ShearObjectiveFactory());
         objectiveTypes.register("smelt", new SmeltingObjectiveFactory());
-        objectiveTypes.register("stage", new StageObjectiveFactory(loggerFactory));
+        objectiveTypes.register("stage", new StageObjectiveFactory());
         objectiveTypes.register("step", new StepObjectiveFactory());
         objectiveTypes.register("tame", new TameObjectiveFactory());
         objectiveTypes.register("variable", new VariableObjectiveFactory());
@@ -462,7 +462,7 @@ public class CoreQuestTypes {
         variables.registerCombined("item", new ItemVariableFactory());
         variables.register("itemdurability", new ItemDurabilityVariableFactory());
         variables.register("location", new LocationVariableFactory());
-        variables.registerCombined("math", new MathVariableFactory(loggerFactory, variableProcessor));
+        variables.registerCombined("math", new MathVariableFactory(variableProcessor));
         variables.registerCombined("npc", new NpcVariableFactory(betonQuest.getFeatureAPI()));
         variables.register("objective", new ObjectivePropertyVariableFactory(questTypeAPI));
         variables.register("point", new PointVariableFactory(dataStorage, loggerFactory.create(PointVariableFactory.class)));

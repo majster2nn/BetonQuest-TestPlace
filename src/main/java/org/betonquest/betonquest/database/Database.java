@@ -16,7 +16,7 @@ import java.util.SortedMap;
  * Abstract Database class, serves as a base for any connection method (MySQL,
  * SQLite, etc.)
  */
-@SuppressWarnings({"PMD.CommentRequired", "PMD.AvoidDuplicateLiterals"})
+@SuppressWarnings("PMD.CommentRequired")
 public abstract class Database {
     protected final Plugin plugin;
 
@@ -36,7 +36,7 @@ public abstract class Database {
         this.log = log;
         this.plugin = plugin;
         this.prefix = plugin.getPluginConfig().getString("mysql.prefix", "");
-        this.profileInitialName = plugin.getPluginConfig().getString("profiles.initial_name", "");
+        this.profileInitialName = plugin.getPluginConfig().getString("profile.initial_name", "default");
     }
 
     public Connection getConnection() {
@@ -55,8 +55,8 @@ public abstract class Database {
 
     private boolean isConnectionBroken(final Connection connection) throws SQLException {
         try {
-            try (PreparedStatement stmnt = connection.prepareStatement("SELECT 1");
-                 ResultSet result = stmnt.executeQuery()) {
+            try (PreparedStatement statement = connection.prepareStatement("SELECT 1");
+                 ResultSet result = statement.executeQuery()) {
                 return !result.next();
             }
         } catch (final SQLException e) {

@@ -35,6 +35,9 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - `Menu` title allows defining different messages
 - `eval` event and condition to resolve a string and interpret it again as event/condition
 - `constants` to replace the `variables` section including new addressing of them with the new constant variable
+- `mmoitem` item type
+- ingame message for plugin updates (removed in 2.1.0)
+- menu `slots` now support variables
 ### Changed
 - Spigot is no longer supported, paper is now required 
 - message.yml file was deleted and instead the lang folder now contains all translations
@@ -68,6 +71,12 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - in quest cancelers the events are now executed before the teleport
 - `simple` quest items now resolve variables one time on reload to support `constant` variables
     - `owner:%player%` was changed to `owner:` to allow constant pre-parsing
+- `math` variable now gives a better exception message and does not return 0 instead
+- `folder` event now use the `unit` argument to define the time unit for ticks, seconds and minutes
+- custom items in the chest conversation IO are now defined in the `properties` section on an option
+- Reworked the config.yml file to be more clean and structured
+    - `item.backpack.cancel_button` and `item.backpack.compass_button` do not have a `DEFAULT` value anymore, instead you need to specify an item
+- LoadDataEvent is now called before and after the data is loaded with a new enum `LoadDataEvent.State` that indicates the state
 ### Deprecated
 ### Removed
 - undocumented prefix feature in conversation
@@ -75,6 +84,8 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - start and stop sound in the configuration for conversations were removed in favor of the notification system that now also has the two new build in categories `conversation_start` and `conversation_end`
 - `menu reload` command which did not work
 - `variables` section in favor for `constants`
+- `MMOItems` conditions, events and `mmoitemcraft` objective in favor of the built-in ones
+- `journal.chars_per_page` was deleted from the config.yml 
 ### Fixed
 - Reloading plugin did not reload Menu config
 - potions generated not extended/upgraded since 2.2.1
@@ -95,6 +106,9 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - `Menu Item` parsing with newlines lead in some cases to missing lines
 - `Menu`s throwing exception on reload when bound commands are used
 - `mmoitemcraft` objective NoSuchMethodError with MMOItems 6.10+
+- `menu` conversation IO exception in one edge case
+- 1.21.5 ProtocolLib support
+- `interact` objective's documentations used hookLocation instead of loc for the location
 ### Security
 
 ## [2.2.1] - 2025-01-12

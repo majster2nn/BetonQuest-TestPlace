@@ -173,7 +173,7 @@ public class Backpack implements Listener {
     /**
      * Standard page with quest items.
      */
-    @SuppressWarnings({"PMD.CyclomaticComplexity", "PMD.GodClass"})
+    @SuppressWarnings("PMD.CyclomaticComplexity")
     private class BackpackPage extends Display {
         /**
          * Backpack size.
@@ -265,19 +265,19 @@ public class Backpack implements Listener {
 
             final int pageOne = 1;
             if (page > pageOne) {
-                content[SLOT_PREVIOUS] = button("previous", Material.GLOWSTONE_DUST, false).getLeft();
+                content[SLOT_PREVIOUS] = button("previous", Material.GLOWSTONE_DUST).getLeft();
             }
             if (page < pages) {
-                content[SLOT_NEXT] = button("next", Material.REDSTONE, false).getLeft();
+                content[SLOT_NEXT] = button("next", Material.REDSTONE).getLeft();
             }
-            final Pair<ItemStack, Boolean> cancel = button("cancel", Material.BONE, true);
+            final Pair<ItemStack, Boolean> cancel = button("cancel", Material.BONE);
             if (cancel.getRight()) {
                 showCancel = true;
                 content[SLOT_CANCEL] = cancel.getLeft();
             } else {
                 showCancel = false;
             }
-            final Pair<ItemStack, Boolean> compass = button("compass", Material.COMPASS, true);
+            final Pair<ItemStack, Boolean> compass = button("compass", Material.COMPASS);
             if (compass.getRight()) {
                 showCompass = true;
                 content[SLOT_COMPASS] = compass.getLeft();
@@ -287,7 +287,7 @@ public class Backpack implements Listener {
 
             final Inventory inv;
             try {
-                Component backpackTitle = pluginMessage.getMessage("backpack_title").asComponent(onlineProfile);
+                Component backpackTitle = pluginMessage.getMessage(onlineProfile, "backpack_title");
                 backpackTitle = backpackTitle.append(Component.text(pages == 0 || pages == 1 ? "" : " (" + page + "/" + pages + ")"));
                 inv = Bukkit.createInventory(null, INVENTORY_SIZE, backpackTitle);
             } catch (final QuestException e) {
@@ -301,26 +301,24 @@ public class Backpack implements Listener {
             Bukkit.getPluginManager().registerEvents(Backpack.this, BetonQuest.getInstance());
         }
 
-        private Pair<ItemStack, Boolean> button(final String button, final Material fallback, final boolean checkDefault) {
+        private Pair<ItemStack, Boolean> button(final String button, final Material fallback) {
             ItemStack stack = null;
             boolean present = false;
-            final String buttonString = config.getString("items.backpack." + button + "_button");
+            final String buttonString = config.getString("item.backpack." + button + "_button");
             if (buttonString != null && !buttonString.isEmpty()) {
                 present = true;
-                if (!checkDefault || !"DEFAULT".equalsIgnoreCase(buttonString)) {
-                    try {
-                        final ItemID itemId = new ItemID(null, buttonString);
-                        stack = BetonQuest.getInstance().getFeatureAPI().getItem(itemId).generate(1);
-                    } catch (final QuestException e) {
-                        log.warn("Could not load " + button + " button: " + e.getMessage(), e);
-                    }
+                try {
+                    final ItemID itemId = new ItemID(null, buttonString);
+                    stack = BetonQuest.getInstance().getFeatureAPI().getItem(itemId, onlineProfile).generate(1);
+                } catch (final QuestException e) {
+                    log.warn("Could not load " + button + " button: " + e.getMessage(), e);
                 }
             }
             if (stack == null) {
                 stack = new ItemStack(fallback);
             }
             try {
-                final Component name = pluginMessage.getMessage(button).asComponent(onlineProfile);
+                final Component name = pluginMessage.getMessage(onlineProfile, button);
                 stack.editMeta(meta -> meta.displayName(name));
             } catch (final QuestException e) {
                 log.warn("Could not set display name for " + button + " button: " + e.getMessage(), e);
@@ -328,7 +326,7 @@ public class Backpack implements Listener {
             return Pair.of(stack, present);
         }
 
-        @SuppressWarnings({"PMD.NcssCount", "PMD.CognitiveComplexity", "PMD.AvoidDeeplyNestedIfStmts"})
+        @SuppressWarnings({"PMD.NcssCount", "PMD.CognitiveComplexity", "PMD.NPathComplexity"})
         @Override
         protected void click(final int slot, final int playerSlot, final ClickType click) {
             if (page == 1 && slot == 0 && showJournal) {
@@ -429,7 +427,7 @@ public class Backpack implements Listener {
                         cancelers.add(entry.getValue());
                     }
                 } catch (final QuestException e) {
-                    log.warn(entry.getKey().getPackage(), "Could not check if canceler is cancelable, dont show it in the GUI: " + e.getMessage(), e);
+                    log.warn(entry.getKey().getPackage(), "Could not check if canceler is cancelable, don't show it in the GUI: " + e.getMessage(), e);
                 }
             }
             final int size = cancelers.size();
@@ -441,7 +439,7 @@ public class Backpack implements Listener {
             }
             final Inventory inv;
             try {
-                inv = Bukkit.createInventory(null, numberOfRows * 9, pluginMessage.getMessage("cancel_page").asComponent(onlineProfile));
+                inv = Bukkit.createInventory(null, numberOfRows * 9, pluginMessage.getMessage(onlineProfile, "cancel_page"));
             } catch (final QuestException e) {
                 log.warn("Could not create cancel inventory: " + e.getMessage(), e);
                 onlineProfile.getPlayer().closeInventory();
@@ -503,7 +501,7 @@ public class Backpack implements Listener {
             }
             final Inventory inv;
             try {
-                inv = Bukkit.createInventory(null, numberOfRows * 9, pluginMessage.getMessage("compass_page").asComponent(onlineProfile));
+                inv = Bukkit.createInventory(null, numberOfRows * 9, pluginMessage.getMessage(onlineProfile, "compass_page"));
             } catch (final QuestException e) {
                 log.warn("Could not create compass inventory: " + e.getMessage(), e);
                 onlineProfile.getPlayer().closeInventory();
@@ -522,7 +520,7 @@ public class Backpack implements Listener {
             Bukkit.getPluginManager().registerEvents(Backpack.this, BetonQuest.getInstance());
         }
 
-        @SuppressWarnings({"NullAway", "PMD.LocalVariableCouldBeFinal"})
+        @SuppressWarnings("NullAway")
         private ItemStack[] getContent(final int numberOfRows) throws QuestException {
             final ItemStack[] content = new ItemStack[numberOfRows * 9];
             int index = 0;
@@ -534,7 +532,7 @@ public class Backpack implements Listener {
                 }
                 ItemStack compass;
                 try {
-                    compass = BetonQuest.getInstance().getFeatureAPI().getItem(item).generate(1);
+                    compass = BetonQuest.getInstance().getFeatureAPI().getItem(item, onlineProfile).generate(1);
                 } catch (final QuestException e) {
                     log.warn("Could not find item: " + e.getMessage(), e);
                     compass = new ItemStack(Material.COMPASS);
