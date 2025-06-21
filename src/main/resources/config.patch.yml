@@ -1,4 +1,136 @@
 # Put patches for BetonQuest's config here. The syntax is documented in the docs/API/Configuration-Files.md
+3.0.0.11:
+  - type: VALUE_REPLACE
+    key: conversation.io.menu.npc_wrap
+    oldValue: '&l &r'
+    newValue: '@[minimessage] '
+  - type: VALUE_REPLACE
+    key: conversation.io.menu.npc_text
+    oldValue: '&l &r&f{npc_text}'
+    newValue: '@[minimessage] <white>{npc_text}'
+  - type: VALUE_REPLACE
+    key: conversation.io.menu.option_wrap
+    oldValue: '&r&l &l &l &l &r'
+    newValue: '@[minimessage]    '
+  - type: VALUE_REPLACE
+    key: conversation.io.menu.option_text
+    oldValue: '&l &l &l &l &r&8[ &b{option_text}&8 ]'
+    newValue: '@[minimessage]    <dark_gray>[ <aqua>{option_text}</aqua> ]'
+  - type: VALUE_REPLACE
+    key: conversation.io.menu.option_selected
+    oldValue: '&l &r &r&7»&r &8[ &f&n{option_text}&8 ]'
+    newValue: '@[minimessage] <gray>» <dark_gray>[ <white><underlined>{option_text}</underlined></white> ]'
+  - type: VALUE_REPLACE
+    key: conversation.io.menu.option_selected_wrap
+    oldValue: '&r&l &l &l &l &r&f&n'
+    newValue: '@[minimessage]    <white><underlined>'
+  - type: VALUE_REPLACE
+    key: conversation.io.menu.npc_name_format
+    oldValue: '&e{npc_name}&r'
+    newValue: '@[minimessage]<yellow>{npc_name}'
+3.0.0.10:
+  - type: VALUE_REPLACE
+    key: conversation.color.npc
+    oldValue: dark_red
+    newValue: '@[minimessage]<dark_red>'
+  - type: VALUE_REPLACE
+    key: conversation.color.player
+    oldValue: dark_green
+    newValue: '@[minimessage]<dark_green>'
+  - type: VALUE_REPLACE
+    key: conversation.color.text
+    oldValue: green,italic
+    newValue: '@[minimessage]<green><italic>'
+  - type: VALUE_REPLACE
+    key: conversation.color.answer
+    oldValue: gray
+    newValue: '@[minimessage]<gray>'
+  - type: VALUE_REPLACE
+    key: conversation.color.number
+    oldValue: yellow
+    newValue: '@[minimessage]<yellow>'
+  - type: VALUE_REPLACE
+    key: conversation.color.option
+    oldValue: aqua
+    newValue: '@[minimessage]<aqua>'
+3.0.0.9:
+  - type: REMOVE
+    key: conversation.io.menu.option_selected_reset
+  - type: REMOVE
+    key: conversation.io.menu.option_text_reset
+  - type: REMOVE
+    key: conversation.io.menu.npc_text_reset
+  - type: VALUE_REPLACE
+    key: conversation.io.menu.line_length
+    oldValue: 50
+    newValue: 320
+  - type: TYPE_TRANSFORM
+    key: conversation.io.menu.line_length
+    newType: integer
+3.0.0.8:
+  - type: SET
+    key: conversation.io.menu.selection_cooldown
+    value: 10
+  - type: SET
+    key: conversation.io.menu.refresh_delay
+    value: 180
+  - type: SET
+    key: conversation.io.menu.line_length
+    value: 50
+  - type: SET
+    key: conversation.io.menu.start_new_lines
+    value: 10
+  - type: SET
+    key: conversation.io.menu.npc_name_newline_separator
+    value: true
+  - type: SET
+    key: conversation.io.menu.npc_text_fill_new_lines
+    value: true
+  - type: SET
+    key: conversation.io.menu.control_select
+    value: jump,left_click
+  - type: SET
+    key: conversation.io.menu.control_cancel
+    value: sneak
+  - type: SET
+    key: conversation.io.menu.control_move
+    value: scroll,move
+  - type: SET
+    key: conversation.io.menu.npc_name_align
+    value: center
+  - type: SET
+    key: conversation.io.menu.npc_name_type
+    value: chat
+  - type: SET
+    key: conversation.io.menu.npc_wrap
+    value: '&l &r'
+  - type: SET
+    key: conversation.io.menu.npc_text
+    value: '&l &r&f{npc_text}'
+  - type: SET
+    key: conversation.io.menu.npc_text_reset
+    value: '&f'
+  - type: SET
+    key: conversation.io.menu.option_wrap
+    value: '&r&l &l &l &l &r'
+  - type: SET
+    key: conversation.io.menu.option_text
+    value: '&l &l &l &l &r&8[ &b{option_text}&8 ]'
+  - type: SET
+    key: conversation.io.menu.option_text_reset
+    value: '&b'
+  - type: SET
+    key: conversation.io.menu.option_selected
+    value: '&l &r &r&7»&r &8[ &f&n{option_text}&8 ]'
+  - type: SET
+    key: conversation.io.menu.option_selected_reset
+    value: '&f'
+  - type: SET
+    key: conversation.io.menu.option_selected_wrap
+    value: '&r&l &l &l &l &r&f&n'
+  - type: SET
+    key: conversation.io.menu.npc_name_format
+    value: '&e{npc_name}&r'
 3.0.0.7:
   - type: KEY_RENAME
     oldKey: update
@@ -110,9 +242,23 @@
   - type: KEY_RENAME
     oldKey: default_close
     newKey: menu.default_close
+
+  - type: SET
+    key: default_notify_io
+    value: 'chat'
+  - type: SET
+    key: journal.format.show_separator
+    value: false
 3.0.0.6:
   - type: REMOVE
     key: sounds
+3.0.0.5:
+  - type: SET
+    key: hook.fancynpcs
+    value: true
+  - type: SET
+    key: hook.znpcsplus
+    value: true
 3.0.0.3:
   - type: REMOVE
     key: citizens_npcs_by_name
@@ -125,6 +271,9 @@
   - type: KEY_RENAME
     oldKey: npcInteractionLimit
     newKey: npcs.interaction_limit
+  - type: SET
+    key: message_parser
+    value: 'legacyminimessage'
 3.0.0.2:
   - type: VALUE_RENAME
     key: language
@@ -178,10 +327,22 @@
     key: language
     oldValueRegex: 'cn'
     newValue: 'zh-CN'
+  - type: SET
+    key: journal.separator
+    value: '---------------'
+  - type: SET
+    key: default_close
+    value: true
 3.0.0.1:
   - type: KEY_RENAME
     oldKey: hook.proskillapi
     newKey: hook.fabled
+  - type: SET
+    key: hook.breweryx
+    value: true
+  - type: SET
+    key: hook.train_carts
+    value: true
 2.1.0.1:
   - type: KEY_RENAME
     oldKey: hook.aureliumskills

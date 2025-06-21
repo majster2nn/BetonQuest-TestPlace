@@ -37,7 +37,8 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - `constants` to replace the `variables` section including new addressing of them with the new constant variable
 - `mmoitem` item type
 - ingame message for plugin updates (removed in 2.1.0)
-- menu `slots` now support variables
+- menu `slots` and bound `item` now support variables, `menu item` now supports variable `item`
+- `menu` event now supports the `update` action to update the currently opened menu
 ### Changed
 - Spigot is no longer supported, paper is now required 
 - message.yml file was deleted and instead the lang folder now contains all translations
@@ -77,6 +78,7 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Reworked the config.yml file to be more clean and structured
     - `item.backpack.cancel_button` and `item.backpack.compass_button` do not have a `DEFAULT` value anymore, instead you need to specify an item
 - LoadDataEvent is now called before and after the data is loaded with a new enum `LoadDataEvent.State` that indicates the state
+- menu conversation IO settings are now defined the config.yml file in the `conversation.io.menu` section
 ### Deprecated
 ### Removed
 - undocumented prefix feature in conversation
@@ -109,6 +111,8 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - `menu` conversation IO exception in one edge case
 - 1.21.5 ProtocolLib support
 - `interact` objective's documentations used hookLocation instead of loc for the location
+- `randomnumber` variable using locale/eventually comma instead of dots breaking further using like math
+- `interact` objective now blocks the interaction with an item frame properly if cancel is set
 ### Security
 
 ## [2.2.1] - 2025-01-12
